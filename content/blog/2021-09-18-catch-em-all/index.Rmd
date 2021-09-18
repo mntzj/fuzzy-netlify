@@ -1,0 +1,107 @@
+---
+title: "Catch em All"
+author: "mntzj"
+date: '2021-09-18'
+excerpt: ''
+layout: single
+series: null
+slug: []
+subtitle: ''
+tags:
+- pokemon
+- api
+- json
+- purrr
+categories: []
+---
+
+In this post, we are going to go into the pokemon world and try to catch some
+through the API [pokeapi.co](https://pokeapi.co/). A fun way to get familiar with 
+working with APIs and handling JSON response with nested lists into tidy and nice rectangles of data.
+![Hehe](https://lh3.googleusercontent.com/proxy/J6QEl0JbwBX1zPstq2W3OWk7iVdRGZHXWcfdboF2oNdpHtxEIkrdTwUbyvJneyzmppyTCK5hAIGUWKyeQAeBKW0I9i0EJTVInuca0_O9jPocZEVqJ5Cywk59bDhjU-d42UTxL7IP7UbPi7Qb__T322Uh96bOpGwDYfI)
+
+_note that in this example no authentication is required to access this API, and all resources are fully open and available_ ..
+
+```{r load em all}
+library(httr, quietly = TRUE, warn.conflicts = FALSE)
+library(jsonlite, quietly = TRUE, warn.conflicts = FALSE)
+library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
+```
+
+```{r api}
+poke_base <- "https://pokeapi.co/api/v2/"
+pokemon_endpoint <- "pokemon"
+records_limit <- "/?limit=200"
+call <- paste0(poke_base,pokemon_endpoint,records_limit)
+```
+
+```{r request}
+catch_em_all <- httr::GET(url = call)
+catch_em_all$status_code
+response_content <- httr::content(catch_em_all, as = "text")
+```
+
+```{r serialize}
+pokemons_json <- jsonlite::fromJSON(response_content, flatten = TRUE)
+pokemons_tibble <- as_tibble(pokemons_json$results)
+```
+
+```{r first catch}
+catch_pokemon <- function(pokemon, poketable=pokemons_tibble)
+{
+  .poke_url = poketable[match(pokemon, poketable$name), 2] %>% pull()
+  .catch = httr::GET(url = .poke_url)
+  .content = httr::content(.catch, as = "text")
+  return(jsonlite::fromJSON(.content, flatten = TRUE))
+}
+
+catch_pokemon("charmander") %>% str(max.level = 1)
+```
+
+```{r team rocket hold up}
+pokenets <- map(pokemons_tibble$name, catch_pokemon)
+names(pokenets) <- pokemons_tibble$name
+#These are our pokemons
+```
+
+```{r tidy data, message = FALSE, echo = FALSE}
+str(pokenets, max.level = 1)
+
+
+stats_names <- pluck(pokenets,1,"stats","stat.name")
+
+extract_basestats <- function(pokerow) {
+  pluck(pokenets,pokerow,"stats","base_stat") %>%
+    as.double() %>%
+    set_names(nm = stats_names)
+}
+
+extract_type <- function(pokerow) {
+  pluck(pokenets, pokerow, "types", "type.name") %>%
+    paste() 
+  }
+
+pokenets_tbl <- tibble(pokenets) %>%
+  unnest_wider(pokenets) %>%
+  select(name, height, weight) %>%
+  mutate(pokedata = map(row_number(),extract_basestats)) %>%
+  unnest_wider(pokedata) %>%
+  mutate(poketype = map(row_number(),extract_type)) %>%
+  unnest_wider(poketype)
+
+```
+```{r}
+library(corrr)
+
+pokenets_tbl %>%
+  select(height:speed) %>%
+  correlate() %>%
+  rearrange() %>%
+  shave() %>%
+  rplot(shape = 15, colours = c("darkorange", "white", "darkcyan"))
+```
+
+#todo :  perform PCA and or Lin Reg
+
+
+

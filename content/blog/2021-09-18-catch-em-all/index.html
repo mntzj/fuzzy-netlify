@@ -1,12 +1,18 @@
 ---
-title: "Catch em All"
+title: "Wrangling with JSON data in R "
 author: "mntzj"
 date: '2021-09-18'
-excerpt: ''
-layout: single
-series: null
-slug: []
-subtitle: ''
+output:
+  html_document:
+    highlight: true
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+#layout: single
+#excerpt: ''
+#series: null
+#slug: []
+subtitle: 'Example with Pokemon API'
 tags:
 - pokemon
 - api
@@ -15,48 +21,59 @@ tags:
 categories: []
 ---
 
+<script src="index_files/htmlwidgets/htmlwidgets.js"></script>
+<script src="index_files/jquery/jquery.min.js"></script>
+<link href="index_files/datatables-css/datatables-crosstalk.css" rel="stylesheet" />
+<script src="index_files/datatables-binding/datatables.js"></script>
+<link href="index_files/dt-core/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="index_files/dt-core/css/jquery.dataTables.extra.css" rel="stylesheet" />
+<script src="index_files/dt-core/js/jquery.dataTables.min.js"></script>
+<link href="index_files/crosstalk/css/crosstalk.css" rel="stylesheet" />
+<script src="index_files/crosstalk/js/crosstalk.min.js"></script>
 
 
-<p>In this post, we are going to go into the pokemon world and try to catch some
-through the API <a href="https://pokeapi.co/">pokeapi.co</a>. A fun way to get familiar with
-working with APIs and handling JSON response with nested lists into tidy and nice rectangles of data.
-<img src="https://lh3.googleusercontent.com/proxy/J6QEl0JbwBX1zPstq2W3OWk7iVdRGZHXWcfdboF2oNdpHtxEIkrdTwUbyvJneyzmppyTCK5hAIGUWKyeQAeBKW0I9i0EJTVInuca0_O9jPocZEVqJ5Cywk59bDhjU-d42UTxL7IP7UbPi7Qb__T322Uh96bOpGwDYfI" alt="Hehe" /></p>
+<p>A fun way to get familiar with working with APIs and handling JSON data with nested lists into tidy and nice rectangles of data.</p>
+<p>In this post, we are going to try to <em>catch</em> some pokémons
+using the API <a href="https://pokeapi.co/">pokeapi.co</a>.</p>
 <p><em>note that in this example no authentication is required to access this API, and all resources are fully open and available</em> ..</p>
-<pre class="r"><code>library(httr, quietly = TRUE, warn.conflicts = FALSE)
-library(jsonlite, quietly = TRUE, warn.conflicts = FALSE)
-library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)</code></pre>
-<pre><code>## Registered S3 methods overwritten by &#39;tibble&#39;:
-##   method     from  
-##   format.tbl pillar
-##   print.tbl  pillar</code></pre>
-<pre><code>## ── Attaching packages ────────────────────────────────────────────────────────── tidyverse 1.3.0 ──</code></pre>
-<pre><code>## ✓ ggplot2 3.2.1     ✓ purrr   0.3.4
-## ✓ tibble  3.0.1     ✓ dplyr   1.0.7
-## ✓ tidyr   1.0.0     ✓ stringr 1.4.0
-## ✓ readr   1.3.1     ✓ forcats 0.5.0</code></pre>
-<pre><code>## ── Conflicts ───────────────────────────────────────────────────────────── tidyverse_conflicts() ──
-## x dplyr::filter()  masks stats::filter()
-## x purrr::flatten() masks jsonlite::flatten()
-## x dplyr::lag()     masks stats::lag()</code></pre>
-<pre class="r"><code>poke_base &lt;- &quot;https://pokeapi.co/api/v2/&quot;
-pokemon_endpoint &lt;- &quot;pokemon&quot;
-records_limit &lt;- &quot;/?limit=200&quot;
-call &lt;- paste0(poke_base,pokemon_endpoint,records_limit)</code></pre>
-<pre class="r"><code>catch_em_all &lt;- httr::GET(url = call)
-catch_em_all$status_code</code></pre>
-<pre><code>## [1] 200</code></pre>
-<pre class="r"><code>response_content &lt;- httr::content(catch_em_all, as = &quot;text&quot;)</code></pre>
-<pre class="r"><code>pokemons_json &lt;- jsonlite::fromJSON(response_content, flatten = TRUE)
-pokemons_tibble &lt;- as_tibble(pokemons_json$results)</code></pre>
-<pre class="r"><code>catch_pokemon &lt;- function(pokemon, poketable=pokemons_tibble)
-{
-  .poke_url = poketable[match(pokemon, poketable$name), 2] %&gt;% pull()
-  .catch = httr::GET(url = .poke_url)
-  .content = httr::content(.catch, as = &quot;text&quot;)
-  return(jsonlite::fromJSON(.content, flatten = TRUE))
-}
+<div id="libs-and-links" class="section level1">
+<h1>Libs and links</h1>
+<p>We will need to load the packages </p>
+<ul>
+<li><p><code>httr</code>: for sending http requests. <a href="https://cran.r-project.org/web/packages/httr/index.html">Docs for httr</a> </p></li>
+<li><p><code>jsonlite</code> : handy when wrangling with json like data. <a href="https://cran.r-project.org/web/packages/jsonlite/index.html">Docs on jsonlite</a> </p></li>
+<li><p><code>tidyverse</code> not necessary, base R does the job but I am quite fan of this framework. </p></li>
+</ul>
+<p>Check if you have them in your local library this way:
+</p>
+<p><img src="c1.png" /></p>
+<p><img src="c2.png" /></p>
+<p>And load </p>
+<p>Set the URL the api’s resource you are insterested in, Below I am looking just
+for each pokemon (first 200 records) with the corresponding resource (URL). So each pokemons is an endpoint with multiple nested resources.
+<img src="c3.png" /></p>
+<p>Raw json look like
 
-catch_pokemon(&quot;charmander&quot;) %&gt;% str(max.level = 1)</code></pre>
+<img src="Screenshot%202021-09-21%20at%2020.21.03.png" /></p>
+</div>
+<div id="section" class="section level1">
+<h1></h1>
+<p><img src="c4.png" /></p>
+<pre><code>## [1] 200</code></pre>
+<div class="figure">
+<img src="http://i.imgflip.com/21gr1.gif" alt="200 OK" />
+<p class="caption">200 OK</p>
+</div>
+<p>We caught these beautiful creatures
+<img src="c5.png" /></p>
+<div id="htmlwidget-1" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-1">{"x":{"filter":"none","data":[["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna","beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow","ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoran-f","nidorina","nidoqueen","nidoran-m","nidorino","nidoking","clefairy","clefable","vulpix","ninetales","jigglypuff","wigglytuff","zubat","golbat","oddish","gloom","vileplume","paras","parasect","venonat","venomoth","diglett","dugtrio","meowth","persian","psyduck","golduck","mankey","primeape","growlithe","arcanine","poliwag","poliwhirl","poliwrath","abra","kadabra","alakazam","machop","machoke","machamp","bellsprout","weepinbell","victreebel","tentacool","tentacruel","geodude","graveler","golem","ponyta","rapidash","slowpoke","slowbro","magnemite","magneton","farfetchd","doduo","dodrio","seel","dewgong","grimer","muk","shellder","cloyster","gastly","haunter","gengar","onix","drowzee","hypno","krabby","kingler","voltorb","electrode","exeggcute","exeggutor","cubone","marowak","hitmonlee","hitmonchan","lickitung","koffing","weezing","rhyhorn","rhydon","chansey","tangela","kangaskhan","horsea","seadra","goldeen","seaking","staryu","starmie","mr-mime","scyther","jynx","electabuzz","magmar","pinsir","tauros","magikarp","gyarados","lapras","ditto","eevee","vaporeon","jolteon","flareon","porygon","omanyte","omastar","kabuto","kabutops","aerodactyl","snorlax","articuno","zapdos","moltres","dratini","dragonair","dragonite","mewtwo","mew","chikorita","bayleef","meganium","cyndaquil","quilava","typhlosion","totodile","croconaw","feraligatr","sentret","furret","hoothoot","noctowl","ledyba","ledian","spinarak","ariados","crobat","chinchou","lanturn","pichu","cleffa","igglybuff","togepi","togetic","natu","xatu","mareep","flaaffy","ampharos","bellossom","marill","azumarill","sudowoodo","politoed","hoppip","skiploom","jumpluff","aipom","sunkern","sunflora","yanma","wooper","quagsire","espeon","umbreon","murkrow","slowking","misdreavus"],["https://pokeapi.co/api/v2/pokemon/1/","https://pokeapi.co/api/v2/pokemon/2/","https://pokeapi.co/api/v2/pokemon/3/","https://pokeapi.co/api/v2/pokemon/4/","https://pokeapi.co/api/v2/pokemon/5/","https://pokeapi.co/api/v2/pokemon/6/","https://pokeapi.co/api/v2/pokemon/7/","https://pokeapi.co/api/v2/pokemon/8/","https://pokeapi.co/api/v2/pokemon/9/","https://pokeapi.co/api/v2/pokemon/10/","https://pokeapi.co/api/v2/pokemon/11/","https://pokeapi.co/api/v2/pokemon/12/","https://pokeapi.co/api/v2/pokemon/13/","https://pokeapi.co/api/v2/pokemon/14/","https://pokeapi.co/api/v2/pokemon/15/","https://pokeapi.co/api/v2/pokemon/16/","https://pokeapi.co/api/v2/pokemon/17/","https://pokeapi.co/api/v2/pokemon/18/","https://pokeapi.co/api/v2/pokemon/19/","https://pokeapi.co/api/v2/pokemon/20/","https://pokeapi.co/api/v2/pokemon/21/","https://pokeapi.co/api/v2/pokemon/22/","https://pokeapi.co/api/v2/pokemon/23/","https://pokeapi.co/api/v2/pokemon/24/","https://pokeapi.co/api/v2/pokemon/25/","https://pokeapi.co/api/v2/pokemon/26/","https://pokeapi.co/api/v2/pokemon/27/","https://pokeapi.co/api/v2/pokemon/28/","https://pokeapi.co/api/v2/pokemon/29/","https://pokeapi.co/api/v2/pokemon/30/","https://pokeapi.co/api/v2/pokemon/31/","https://pokeapi.co/api/v2/pokemon/32/","https://pokeapi.co/api/v2/pokemon/33/","https://pokeapi.co/api/v2/pokemon/34/","https://pokeapi.co/api/v2/pokemon/35/","https://pokeapi.co/api/v2/pokemon/36/","https://pokeapi.co/api/v2/pokemon/37/","https://pokeapi.co/api/v2/pokemon/38/","https://pokeapi.co/api/v2/pokemon/39/","https://pokeapi.co/api/v2/pokemon/40/","https://pokeapi.co/api/v2/pokemon/41/","https://pokeapi.co/api/v2/pokemon/42/","https://pokeapi.co/api/v2/pokemon/43/","https://pokeapi.co/api/v2/pokemon/44/","https://pokeapi.co/api/v2/pokemon/45/","https://pokeapi.co/api/v2/pokemon/46/","https://pokeapi.co/api/v2/pokemon/47/","https://pokeapi.co/api/v2/pokemon/48/","https://pokeapi.co/api/v2/pokemon/49/","https://pokeapi.co/api/v2/pokemon/50/","https://pokeapi.co/api/v2/pokemon/51/","https://pokeapi.co/api/v2/pokemon/52/","https://pokeapi.co/api/v2/pokemon/53/","https://pokeapi.co/api/v2/pokemon/54/","https://pokeapi.co/api/v2/pokemon/55/","https://pokeapi.co/api/v2/pokemon/56/","https://pokeapi.co/api/v2/pokemon/57/","https://pokeapi.co/api/v2/pokemon/58/","https://pokeapi.co/api/v2/pokemon/59/","https://pokeapi.co/api/v2/pokemon/60/","https://pokeapi.co/api/v2/pokemon/61/","https://pokeapi.co/api/v2/pokemon/62/","https://pokeapi.co/api/v2/pokemon/63/","https://pokeapi.co/api/v2/pokemon/64/","https://pokeapi.co/api/v2/pokemon/65/","https://pokeapi.co/api/v2/pokemon/66/","https://pokeapi.co/api/v2/pokemon/67/","https://pokeapi.co/api/v2/pokemon/68/","https://pokeapi.co/api/v2/pokemon/69/","https://pokeapi.co/api/v2/pokemon/70/","https://pokeapi.co/api/v2/pokemon/71/","https://pokeapi.co/api/v2/pokemon/72/","https://pokeapi.co/api/v2/pokemon/73/","https://pokeapi.co/api/v2/pokemon/74/","https://pokeapi.co/api/v2/pokemon/75/","https://pokeapi.co/api/v2/pokemon/76/","https://pokeapi.co/api/v2/pokemon/77/","https://pokeapi.co/api/v2/pokemon/78/","https://pokeapi.co/api/v2/pokemon/79/","https://pokeapi.co/api/v2/pokemon/80/","https://pokeapi.co/api/v2/pokemon/81/","https://pokeapi.co/api/v2/pokemon/82/","https://pokeapi.co/api/v2/pokemon/83/","https://pokeapi.co/api/v2/pokemon/84/","https://pokeapi.co/api/v2/pokemon/85/","https://pokeapi.co/api/v2/pokemon/86/","https://pokeapi.co/api/v2/pokemon/87/","https://pokeapi.co/api/v2/pokemon/88/","https://pokeapi.co/api/v2/pokemon/89/","https://pokeapi.co/api/v2/pokemon/90/","https://pokeapi.co/api/v2/pokemon/91/","https://pokeapi.co/api/v2/pokemon/92/","https://pokeapi.co/api/v2/pokemon/93/","https://pokeapi.co/api/v2/pokemon/94/","https://pokeapi.co/api/v2/pokemon/95/","https://pokeapi.co/api/v2/pokemon/96/","https://pokeapi.co/api/v2/pokemon/97/","https://pokeapi.co/api/v2/pokemon/98/","https://pokeapi.co/api/v2/pokemon/99/","https://pokeapi.co/api/v2/pokemon/100/","https://pokeapi.co/api/v2/pokemon/101/","https://pokeapi.co/api/v2/pokemon/102/","https://pokeapi.co/api/v2/pokemon/103/","https://pokeapi.co/api/v2/pokemon/104/","https://pokeapi.co/api/v2/pokemon/105/","https://pokeapi.co/api/v2/pokemon/106/","https://pokeapi.co/api/v2/pokemon/107/","https://pokeapi.co/api/v2/pokemon/108/","https://pokeapi.co/api/v2/pokemon/109/","https://pokeapi.co/api/v2/pokemon/110/","https://pokeapi.co/api/v2/pokemon/111/","https://pokeapi.co/api/v2/pokemon/112/","https://pokeapi.co/api/v2/pokemon/113/","https://pokeapi.co/api/v2/pokemon/114/","https://pokeapi.co/api/v2/pokemon/115/","https://pokeapi.co/api/v2/pokemon/116/","https://pokeapi.co/api/v2/pokemon/117/","https://pokeapi.co/api/v2/pokemon/118/","https://pokeapi.co/api/v2/pokemon/119/","https://pokeapi.co/api/v2/pokemon/120/","https://pokeapi.co/api/v2/pokemon/121/","https://pokeapi.co/api/v2/pokemon/122/","https://pokeapi.co/api/v2/pokemon/123/","https://pokeapi.co/api/v2/pokemon/124/","https://pokeapi.co/api/v2/pokemon/125/","https://pokeapi.co/api/v2/pokemon/126/","https://pokeapi.co/api/v2/pokemon/127/","https://pokeapi.co/api/v2/pokemon/128/","https://pokeapi.co/api/v2/pokemon/129/","https://pokeapi.co/api/v2/pokemon/130/","https://pokeapi.co/api/v2/pokemon/131/","https://pokeapi.co/api/v2/pokemon/132/","https://pokeapi.co/api/v2/pokemon/133/","https://pokeapi.co/api/v2/pokemon/134/","https://pokeapi.co/api/v2/pokemon/135/","https://pokeapi.co/api/v2/pokemon/136/","https://pokeapi.co/api/v2/pokemon/137/","https://pokeapi.co/api/v2/pokemon/138/","https://pokeapi.co/api/v2/pokemon/139/","https://pokeapi.co/api/v2/pokemon/140/","https://pokeapi.co/api/v2/pokemon/141/","https://pokeapi.co/api/v2/pokemon/142/","https://pokeapi.co/api/v2/pokemon/143/","https://pokeapi.co/api/v2/pokemon/144/","https://pokeapi.co/api/v2/pokemon/145/","https://pokeapi.co/api/v2/pokemon/146/","https://pokeapi.co/api/v2/pokemon/147/","https://pokeapi.co/api/v2/pokemon/148/","https://pokeapi.co/api/v2/pokemon/149/","https://pokeapi.co/api/v2/pokemon/150/","https://pokeapi.co/api/v2/pokemon/151/","https://pokeapi.co/api/v2/pokemon/152/","https://pokeapi.co/api/v2/pokemon/153/","https://pokeapi.co/api/v2/pokemon/154/","https://pokeapi.co/api/v2/pokemon/155/","https://pokeapi.co/api/v2/pokemon/156/","https://pokeapi.co/api/v2/pokemon/157/","https://pokeapi.co/api/v2/pokemon/158/","https://pokeapi.co/api/v2/pokemon/159/","https://pokeapi.co/api/v2/pokemon/160/","https://pokeapi.co/api/v2/pokemon/161/","https://pokeapi.co/api/v2/pokemon/162/","https://pokeapi.co/api/v2/pokemon/163/","https://pokeapi.co/api/v2/pokemon/164/","https://pokeapi.co/api/v2/pokemon/165/","https://pokeapi.co/api/v2/pokemon/166/","https://pokeapi.co/api/v2/pokemon/167/","https://pokeapi.co/api/v2/pokemon/168/","https://pokeapi.co/api/v2/pokemon/169/","https://pokeapi.co/api/v2/pokemon/170/","https://pokeapi.co/api/v2/pokemon/171/","https://pokeapi.co/api/v2/pokemon/172/","https://pokeapi.co/api/v2/pokemon/173/","https://pokeapi.co/api/v2/pokemon/174/","https://pokeapi.co/api/v2/pokemon/175/","https://pokeapi.co/api/v2/pokemon/176/","https://pokeapi.co/api/v2/pokemon/177/","https://pokeapi.co/api/v2/pokemon/178/","https://pokeapi.co/api/v2/pokemon/179/","https://pokeapi.co/api/v2/pokemon/180/","https://pokeapi.co/api/v2/pokemon/181/","https://pokeapi.co/api/v2/pokemon/182/","https://pokeapi.co/api/v2/pokemon/183/","https://pokeapi.co/api/v2/pokemon/184/","https://pokeapi.co/api/v2/pokemon/185/","https://pokeapi.co/api/v2/pokemon/186/","https://pokeapi.co/api/v2/pokemon/187/","https://pokeapi.co/api/v2/pokemon/188/","https://pokeapi.co/api/v2/pokemon/189/","https://pokeapi.co/api/v2/pokemon/190/","https://pokeapi.co/api/v2/pokemon/191/","https://pokeapi.co/api/v2/pokemon/192/","https://pokeapi.co/api/v2/pokemon/193/","https://pokeapi.co/api/v2/pokemon/194/","https://pokeapi.co/api/v2/pokemon/195/","https://pokeapi.co/api/v2/pokemon/196/","https://pokeapi.co/api/v2/pokemon/197/","https://pokeapi.co/api/v2/pokemon/198/","https://pokeapi.co/api/v2/pokemon/199/","https://pokeapi.co/api/v2/pokemon/200/"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>name<\/th>\n      <th>url<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+<p>Hit the appropriate resource url to get more info about each pokemon
+## catch first pokemon <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Pok%C3%A9_Ball.svg"
+     width="20" 
+     height="25"/></p>
+<p>Custom function feels like throwing a pokeball
+<img src="c6.png" /></p>
 <pre><code>## List of 18
 ##  $ abilities               :&#39;data.frame&#39;:    2 obs. of  4 variables:
 ##  $ base_experience         : int 62
@@ -76,121 +93,30 @@ catch_pokemon(&quot;charmander&quot;) %&gt;% str(max.level = 1)</code></pre>
 ##  $ stats                   :&#39;data.frame&#39;:    6 obs. of  4 variables:
 ##  $ types                   :&#39;data.frame&#39;:    1 obs. of  3 variables:
 ##  $ weight                  : int 85</code></pre>
-<pre class="r"><code>pokenets &lt;- map(pokemons_tibble$name, catch_pokemon)
-names(pokenets) &lt;- pokemons_tibble$name
-#These are our pokemons</code></pre>
-<pre><code>## List of 200
-##  $ bulbasaur :List of 18
-##  $ ivysaur   :List of 18
-##  $ venusaur  :List of 18
-##  $ charmander:List of 18
-##  $ charmeleon:List of 18
-##  $ charizard :List of 18
-##  $ squirtle  :List of 18
-##  $ wartortle :List of 18
-##  $ blastoise :List of 18
-##  $ caterpie  :List of 18
-##  $ metapod   :List of 18
-##  $ butterfree:List of 18
-##  $ weedle    :List of 18
-##  $ kakuna    :List of 18
-##  $ beedrill  :List of 18
-##  $ pidgey    :List of 18
-##  $ pidgeotto :List of 18
-##  $ pidgeot   :List of 18
-##  $ rattata   :List of 18
-##  $ raticate  :List of 18
-##  $ spearow   :List of 18
-##  $ fearow    :List of 18
-##  $ ekans     :List of 18
-##  $ arbok     :List of 18
-##  $ pikachu   :List of 18
-##  $ raichu    :List of 18
-##  $ sandshrew :List of 18
-##  $ sandslash :List of 18
-##  $ nidoran-f :List of 18
-##  $ nidorina  :List of 18
-##  $ nidoqueen :List of 18
-##  $ nidoran-m :List of 18
-##  $ nidorino  :List of 18
-##  $ nidoking  :List of 18
-##  $ clefairy  :List of 18
-##  $ clefable  :List of 18
-##  $ vulpix    :List of 18
-##  $ ninetales :List of 18
-##  $ jigglypuff:List of 18
-##  $ wigglytuff:List of 18
-##  $ zubat     :List of 18
-##  $ golbat    :List of 18
-##  $ oddish    :List of 18
-##  $ gloom     :List of 18
-##  $ vileplume :List of 18
-##  $ paras     :List of 18
-##  $ parasect  :List of 18
-##  $ venonat   :List of 18
-##  $ venomoth  :List of 18
-##  $ diglett   :List of 18
-##  $ dugtrio   :List of 18
-##  $ meowth    :List of 18
-##  $ persian   :List of 18
-##  $ psyduck   :List of 18
-##  $ golduck   :List of 18
-##  $ mankey    :List of 18
-##  $ primeape  :List of 18
-##  $ growlithe :List of 18
-##  $ arcanine  :List of 18
-##  $ poliwag   :List of 18
-##  $ poliwhirl :List of 18
-##  $ poliwrath :List of 18
-##  $ abra      :List of 18
-##  $ kadabra   :List of 18
-##  $ alakazam  :List of 18
-##  $ machop    :List of 18
-##  $ machoke   :List of 18
-##  $ machamp   :List of 18
-##  $ bellsprout:List of 18
-##  $ weepinbell:List of 18
-##  $ victreebel:List of 18
-##  $ tentacool :List of 18
-##  $ tentacruel:List of 18
-##  $ geodude   :List of 18
-##  $ graveler  :List of 18
-##  $ golem     :List of 18
-##  $ ponyta    :List of 18
-##  $ rapidash  :List of 18
-##  $ slowpoke  :List of 18
-##  $ slowbro   :List of 18
-##  $ magnemite :List of 18
-##  $ magneton  :List of 18
-##  $ farfetchd :List of 18
-##  $ doduo     :List of 18
-##  $ dodrio    :List of 18
-##  $ seel      :List of 18
-##  $ dewgong   :List of 18
-##  $ grimer    :List of 18
-##  $ muk       :List of 18
-##  $ shellder  :List of 18
-##  $ cloyster  :List of 18
-##  $ gastly    :List of 18
-##  $ haunter   :List of 18
-##  $ gengar    :List of 18
-##  $ onix      :List of 18
-##  $ drowzee   :List of 18
-##  $ hypno     :List of 18
-##  $ krabby    :List of 18
-##  $ kingler   :List of 18
-##   [list output truncated]</code></pre>
-<pre class="r"><code>library(corrr)
+<div id="htmlwidget-2" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-2">{"x":null,"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="section-1" class="section level1">
+<h1></h1>
+<p>You got your charmander, now use {purrr} from to catch em all 
+<img src="c7.png" /></p>
+</div>
+<div id="purrr-has-got-powerrr" class="section level1">
+<h1>{purrr} has got powerrr</h1>
+<p>You can for example prepare a dataset containing base stats of a pokemon
+here vectorisation with purrr comes in handy.
+See full documentation at <a href="https://purrr.tidyverse.org/">https://purrr.tidyverse.org/</a> or read the <a href="https://r4ds.had.co.nz/vectors.html">Hadley Wickham’s R4DS book</a></p>
+<p><img src="c8.png" /></p>
+<div id="htmlwidget-3" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3">{"x":{"filter":"none","data":[["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie"],[7,10,20,6,11,17,5,10,16,3],[69,130,1000,85,190,905,90,225,855,29],[45,60,80,39,58,78,44,59,79,45],[49,62,82,52,64,84,48,63,83,30],[49,63,83,43,58,78,65,80,100,35],[65,80,100,60,80,109,50,65,85,20],[65,80,100,50,65,85,64,80,105,20],[45,60,80,65,80,100,43,58,78,45],["grass","grass","grass","fire","fire","fire","water","water","water","bug"],["poison","poison","poison",null,null,"flying",null,null,null,null]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>name<\/th>\n      <th>height<\/th>\n      <th>weight<\/th>\n      <th>hp<\/th>\n      <th>attack<\/th>\n      <th>defense<\/th>\n      <th>special-attack<\/th>\n      <th>special-defense<\/th>\n      <th>speed<\/th>\n      <th>...1<\/th>\n      <th>...2<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[1,2,3,4,5,6,7,8]}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
+</div>
+<div id="section-2" class="section level1">
+<h1></h1>
+<p>Nice and tidy tibble as a good starting point to run a PCA or a regression..
+For the sake plotting here is a correlation plot of base stats 
+¯_( ͡❛ ͜ʖ ͡❛)_/¯<br />
 
-pokenets_tbl %&gt;%
-  select(height:speed) %&gt;%
-  correlate() %&gt;%
-  rearrange() %&gt;%
-  shave() %&gt;%
-  rplot(shape = 15, colours = c(&quot;darkorange&quot;, &quot;white&quot;, &quot;darkcyan&quot;))</code></pre>
-<pre><code>## 
-## Correlation method: &#39;pearson&#39;
-## Missing treated using: &#39;pairwise.complete.obs&#39;</code></pre>
-<pre><code>## Don&#39;t know how to automatically pick scale for object of type noquote. Defaulting to continuous.</code></pre>
-<p><img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
-<p>#todo : perform PCA and or Lin Reg</p>
+<img src="c9.png" />
+<img src="index_files/figure-html/unnamed-chunk-1-1.png" width="672" /></p>
+<p><strong>Thanks for reading</strong></p>
+</div>

@@ -1,12 +1,18 @@
 ---
-title: "Catch em All"
+title: "Wrangling with JSON data in R"
 author: "mntzj"
 date: '2021-09-18'
-excerpt: ''
-layout: single
-series: null
-slug: []
-subtitle: ''
+output:
+  html_document:
+    highlight: true
+    number_sections: yes
+    toc: yes
+    toc_depth: 2
+#layout: single
+#excerpt: ''
+#series: null
+#slug: []
+subtitle: 'Example with Pokemon API'
 tags:
 - pokemon
 - api
@@ -15,83 +21,152 @@ tags:
 categories: []
 ---
 
-In this post, we are going to go into the pokemon world and try to catch some
-through the API [pokeapi.co](https://pokeapi.co/). A fun way to get familiar with 
-working with APIs and handling JSON response with nested lists into tidy and nice rectangles of data.
-![Hehe](https://lh3.googleusercontent.com/proxy/J6QEl0JbwBX1zPstq2W3OWk7iVdRGZHXWcfdboF2oNdpHtxEIkrdTwUbyvJneyzmppyTCK5hAIGUWKyeQAeBKW0I9i0EJTVInuca0_O9jPocZEVqJ5Cywk59bDhjU-d42UTxL7IP7UbPi7Qb__T322Uh96bOpGwDYfI)
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(background = "#FFDAB9", echo = FALSE, message = FALSE)
+```
+
+
+A fun way to get familiar with working with APIs and handling JSON data with nested lists into tidy and nice rectangles of data.
+
+In this post, we are going to try to _catch_ some pokémons
+using the API [pokeapi.co](https://pokeapi.co/). 
+
 
 _note that in this example no authentication is required to access this API, and all resources are fully open and available_ ..
 
-```{r load em all}
+# Libs and links
+We will need to load the packages \n
+
+* `httr`: for sending http requests. [Docs for httr](https://cran.r-project.org/web/packages/httr/index.html) \n
+
+* `jsonlite` : handy when wrangling with json like data. [Docs on jsonlite](https://cran.r-project.org/web/packages/jsonlite/index.html) \n
+
+* `tidyverse` not necessary, base R does the job but I am quite fan of this framework. \n
+
+Check if you have them in your local library this way:
+\n
+
+![](c1.png)
+```{r check pckgs}
+if (!require("httr")) install.packages("httr")
+```
+
+![](c2.png)
+
+And load \n
+```{r load em all, message =FALSE}
 library(httr, quietly = TRUE, warn.conflicts = FALSE)
 library(jsonlite, quietly = TRUE, warn.conflicts = FALSE)
 library(tidyverse, quietly = TRUE, warn.conflicts = FALSE)
 ```
 
-```{r api}
+
+Set the URL the api's resource you are insterested in, Below I am looking just
+for each pokemon (first 200 records) with the corresponding resource (URL). So each pokemons is an endpoint with multiple nested resources.
+![](c3.png)
+
+```{r ap}
 poke_base <- "https://pokeapi.co/api/v2/"
 pokemon_endpoint <- "pokemon"
 records_limit <- "/?limit=200"
 call <- paste0(poke_base,pokemon_endpoint,records_limit)
 ```
 
-```{r request}
+
+Raw json look like 
+\n
+![](Screenshot 2021-09-21 at 20.21.03.png)
+
+# 
+![](c4.png)
+```{r request, message = FALSE}
 catch_em_all <- httr::GET(url = call)
 catch_em_all$status_code
-response_content <- httr::content(catch_em_all, as = "text")
 ```
 
-```{r serialize}
+
+![200 OK](http://i.imgflip.com/21gr1.gif)
+
+We caught these beautiful creatures
+![](c5.png)
+```{r serialize, message = FALSE}
+response_content <- httr::content(catch_em_all, as = "text")
 pokemons_json <- jsonlite::fromJSON(response_content, flatten = TRUE)
 pokemons_tibble <- as_tibble(pokemons_json$results)
+DT::datatable(pokemons_tibble,rownames = FALSE)
 ```
 
-```{r first catch}
+
+Hit the appropriate resource url to get more info about each pokemon 
+## catch first pokemon ![](https://upload.wikimedia.org/wikipedia/commons/2/23/Pok%C3%A9_Ball.svg)
+
+Custom function feels like throwing a pokeball
+![](c6.png)
+```{r first catch, message = FALSE}
 catch_pokemon <- function(pokemon, poketable=pokemons_tibble)
 {
   .poke_url = poketable[match(pokemon, poketable$name), 2] %>% pull()
   .catch = httr::GET(url = .poke_url)
   .content = httr::content(.catch, as = "text")
-  return(jsonlite::fromJSON(.content, flatten = TRUE))
+  jsonlite::fromJSON(.content, flatten = TRUE)
 }
 
-catch_pokemon("charmander") %>% str(max.level = 1)
+catch_pokemon("charmander") %>% str(max.level = 1) %>%
+  DT::datatable(rownames = FALSE)
 ```
 
-```{r team rocket hold up}
+
+#
+You got your charmander, now use {purrr} from to catch em all \n
+![](c7.png)
+```{r team rocket hold up, message = FALSE}
 pokenets <- map(pokemons_tibble$name, catch_pokemon)
 names(pokenets) <- pokemons_tibble$name
-#These are our pokemons
 ```
 
-```{r tidy data, message = FALSE, echo = FALSE}
-str(pokenets, max.level = 1)
 
+# {purrr} has got powerrr
+You can for example prepare a dataset containing base stats of a pokemon
+here vectorisation with purrr comes in handy.
+See full documentation at [https://purrr.tidyverse.org/](https://purrr.tidyverse.org/) or read the [Hadley Wickham's R4DS book](https://r4ds.had.co.nz/vectors.html) 
 
-stats_names <- pluck(pokenets,1,"stats","stat.name")
+![](c8.png)
 
-extract_basestats <- function(pokerow) {
+```{r tidy data, message = FALSE}
+
+stats_names <- pluck(pokenets,1,"stats","stat.name") #set column names for the final dataframe
+
+extract_basestats <- function(pokerow) { #plucks base stats at the corresponding level in the list
   pluck(pokenets,pokerow,"stats","base_stat") %>%
     as.double() %>%
     set_names(nm = stats_names)
 }
 
-extract_type <- function(pokerow) {
+extract_type <- function(pokerow) { #same as above for pokemon type
   pluck(pokenets, pokerow, "types", "type.name") %>%
     paste() 
   }
 
-pokenets_tbl <- tibble(pokenets) %>%
+pokenets_tbl <- tibble(pokenets) %>% # tidying a dataframe and binding the plucked data
   unnest_wider(pokenets) %>%
   select(name, height, weight) %>%
   mutate(pokedata = map(row_number(),extract_basestats)) %>%
-  unnest_wider(pokedata) %>%
+  unnest_wider(pokedata) %>% 
   mutate(poketype = map(row_number(),extract_type)) %>%
   unnest_wider(poketype)
 
+DT::datatable(head(pokenets_tbl,10),rownames = FALSE)
 ```
-```{r}
-library(corrr)
+
+
+# 
+Nice and tidy tibble as a good starting point to run a PCA or a regression..
+For the sake plotting here is a correlation plot of base stats \n
+¯\_( ͡❛ ͜ʖ ͡❛)_/¯    
+\n
+![](c9.png)
+```{r, message = FALSE}
+library(corrr,quietly = TRUE)
 
 pokenets_tbl %>%
   select(height:speed) %>%
@@ -101,7 +176,7 @@ pokenets_tbl %>%
   rplot(shape = 15, colours = c("darkorange", "white", "darkcyan"))
 ```
 
-#todo :  perform PCA and or Lin Reg
 
+**Thanks for reading**
 
 

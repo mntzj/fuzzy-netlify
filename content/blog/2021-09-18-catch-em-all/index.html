@@ -1,5 +1,5 @@
 ---
-title: "Wrangling with JSON data in R "
+title: "Wrangling with JSON data in R"
 author: "mntzj"
 date: '2021-09-18'
 output:
@@ -47,33 +47,34 @@ using the API <a href="https://pokeapi.co/">pokeapi.co</a>.</p>
 <p>Check if you have them in your local library this way:
 </p>
 <p><img src="c1.png" /></p>
+<p>And load
+</p>
 <p><img src="c2.png" /></p>
-<p>And load </p>
 <p>Set the URL the api’s resource you are insterested in, Below I am looking just
-for each pokemon (first 200 records) with the corresponding resource (URL). So each pokemons is an endpoint with multiple nested resources.
-<img src="c3.png" /></p>
-<p>Raw json look like
+for each pokemon (first 200 records) with the corresponding resource (URL). So each pokemons is an endpoint with multiple nested resources.</p>
+<p><img src="c3.png" /></p>
+<p>Raw json look like :</p>
 
-<img src="Screenshot%202021-09-21%20at%2020.21.03.png" /></p>
+<p><img src="Screenshot%202021-09-21%20at%2020.21.03.png" /></p>
 </div>
 <div id="section" class="section level1">
 <h1></h1>
+<p>Give it a try with <code>httr::GET</code> GET request</p>
 <p><img src="c4.png" /></p>
 <pre><code>## [1] 200</code></pre>
-<div class="figure">
-<img src="http://i.imgflip.com/21gr1.gif" alt="200 OK" />
-<p class="caption">200 OK</p>
-</div>
-<p>We caught these beautiful creatures
-<img src="c5.png" /></p>
+<p>Http status 200 OK ..</p>
+<p><img src="http://i.imgflip.com/21gr1.gif" /></p>
+<p><img src="c5.png" /></p>
+<p>Now we got these beautiful pokemons * _ * below</p>
 <div id="htmlwidget-1" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-1">{"x":{"filter":"none","data":[["bulbasaur","ivysaur","venusaur","charmander","charmeleon","charizard","squirtle","wartortle","blastoise","caterpie","metapod","butterfree","weedle","kakuna","beedrill","pidgey","pidgeotto","pidgeot","rattata","raticate","spearow","fearow","ekans","arbok","pikachu","raichu","sandshrew","sandslash","nidoran-f","nidorina","nidoqueen","nidoran-m","nidorino","nidoking","clefairy","clefable","vulpix","ninetales","jigglypuff","wigglytuff","zubat","golbat","oddish","gloom","vileplume","paras","parasect","venonat","venomoth","diglett","dugtrio","meowth","persian","psyduck","golduck","mankey","primeape","growlithe","arcanine","poliwag","poliwhirl","poliwrath","abra","kadabra","alakazam","machop","machoke","machamp","bellsprout","weepinbell","victreebel","tentacool","tentacruel","geodude","graveler","golem","ponyta","rapidash","slowpoke","slowbro","magnemite","magneton","farfetchd","doduo","dodrio","seel","dewgong","grimer","muk","shellder","cloyster","gastly","haunter","gengar","onix","drowzee","hypno","krabby","kingler","voltorb","electrode","exeggcute","exeggutor","cubone","marowak","hitmonlee","hitmonchan","lickitung","koffing","weezing","rhyhorn","rhydon","chansey","tangela","kangaskhan","horsea","seadra","goldeen","seaking","staryu","starmie","mr-mime","scyther","jynx","electabuzz","magmar","pinsir","tauros","magikarp","gyarados","lapras","ditto","eevee","vaporeon","jolteon","flareon","porygon","omanyte","omastar","kabuto","kabutops","aerodactyl","snorlax","articuno","zapdos","moltres","dratini","dragonair","dragonite","mewtwo","mew","chikorita","bayleef","meganium","cyndaquil","quilava","typhlosion","totodile","croconaw","feraligatr","sentret","furret","hoothoot","noctowl","ledyba","ledian","spinarak","ariados","crobat","chinchou","lanturn","pichu","cleffa","igglybuff","togepi","togetic","natu","xatu","mareep","flaaffy","ampharos","bellossom","marill","azumarill","sudowoodo","politoed","hoppip","skiploom","jumpluff","aipom","sunkern","sunflora","yanma","wooper","quagsire","espeon","umbreon","murkrow","slowking","misdreavus"],["https://pokeapi.co/api/v2/pokemon/1/","https://pokeapi.co/api/v2/pokemon/2/","https://pokeapi.co/api/v2/pokemon/3/","https://pokeapi.co/api/v2/pokemon/4/","https://pokeapi.co/api/v2/pokemon/5/","https://pokeapi.co/api/v2/pokemon/6/","https://pokeapi.co/api/v2/pokemon/7/","https://pokeapi.co/api/v2/pokemon/8/","https://pokeapi.co/api/v2/pokemon/9/","https://pokeapi.co/api/v2/pokemon/10/","https://pokeapi.co/api/v2/pokemon/11/","https://pokeapi.co/api/v2/pokemon/12/","https://pokeapi.co/api/v2/pokemon/13/","https://pokeapi.co/api/v2/pokemon/14/","https://pokeapi.co/api/v2/pokemon/15/","https://pokeapi.co/api/v2/pokemon/16/","https://pokeapi.co/api/v2/pokemon/17/","https://pokeapi.co/api/v2/pokemon/18/","https://pokeapi.co/api/v2/pokemon/19/","https://pokeapi.co/api/v2/pokemon/20/","https://pokeapi.co/api/v2/pokemon/21/","https://pokeapi.co/api/v2/pokemon/22/","https://pokeapi.co/api/v2/pokemon/23/","https://pokeapi.co/api/v2/pokemon/24/","https://pokeapi.co/api/v2/pokemon/25/","https://pokeapi.co/api/v2/pokemon/26/","https://pokeapi.co/api/v2/pokemon/27/","https://pokeapi.co/api/v2/pokemon/28/","https://pokeapi.co/api/v2/pokemon/29/","https://pokeapi.co/api/v2/pokemon/30/","https://pokeapi.co/api/v2/pokemon/31/","https://pokeapi.co/api/v2/pokemon/32/","https://pokeapi.co/api/v2/pokemon/33/","https://pokeapi.co/api/v2/pokemon/34/","https://pokeapi.co/api/v2/pokemon/35/","https://pokeapi.co/api/v2/pokemon/36/","https://pokeapi.co/api/v2/pokemon/37/","https://pokeapi.co/api/v2/pokemon/38/","https://pokeapi.co/api/v2/pokemon/39/","https://pokeapi.co/api/v2/pokemon/40/","https://pokeapi.co/api/v2/pokemon/41/","https://pokeapi.co/api/v2/pokemon/42/","https://pokeapi.co/api/v2/pokemon/43/","https://pokeapi.co/api/v2/pokemon/44/","https://pokeapi.co/api/v2/pokemon/45/","https://pokeapi.co/api/v2/pokemon/46/","https://pokeapi.co/api/v2/pokemon/47/","https://pokeapi.co/api/v2/pokemon/48/","https://pokeapi.co/api/v2/pokemon/49/","https://pokeapi.co/api/v2/pokemon/50/","https://pokeapi.co/api/v2/pokemon/51/","https://pokeapi.co/api/v2/pokemon/52/","https://pokeapi.co/api/v2/pokemon/53/","https://pokeapi.co/api/v2/pokemon/54/","https://pokeapi.co/api/v2/pokemon/55/","https://pokeapi.co/api/v2/pokemon/56/","https://pokeapi.co/api/v2/pokemon/57/","https://pokeapi.co/api/v2/pokemon/58/","https://pokeapi.co/api/v2/pokemon/59/","https://pokeapi.co/api/v2/pokemon/60/","https://pokeapi.co/api/v2/pokemon/61/","https://pokeapi.co/api/v2/pokemon/62/","https://pokeapi.co/api/v2/pokemon/63/","https://pokeapi.co/api/v2/pokemon/64/","https://pokeapi.co/api/v2/pokemon/65/","https://pokeapi.co/api/v2/pokemon/66/","https://pokeapi.co/api/v2/pokemon/67/","https://pokeapi.co/api/v2/pokemon/68/","https://pokeapi.co/api/v2/pokemon/69/","https://pokeapi.co/api/v2/pokemon/70/","https://pokeapi.co/api/v2/pokemon/71/","https://pokeapi.co/api/v2/pokemon/72/","https://pokeapi.co/api/v2/pokemon/73/","https://pokeapi.co/api/v2/pokemon/74/","https://pokeapi.co/api/v2/pokemon/75/","https://pokeapi.co/api/v2/pokemon/76/","https://pokeapi.co/api/v2/pokemon/77/","https://pokeapi.co/api/v2/pokemon/78/","https://pokeapi.co/api/v2/pokemon/79/","https://pokeapi.co/api/v2/pokemon/80/","https://pokeapi.co/api/v2/pokemon/81/","https://pokeapi.co/api/v2/pokemon/82/","https://pokeapi.co/api/v2/pokemon/83/","https://pokeapi.co/api/v2/pokemon/84/","https://pokeapi.co/api/v2/pokemon/85/","https://pokeapi.co/api/v2/pokemon/86/","https://pokeapi.co/api/v2/pokemon/87/","https://pokeapi.co/api/v2/pokemon/88/","https://pokeapi.co/api/v2/pokemon/89/","https://pokeapi.co/api/v2/pokemon/90/","https://pokeapi.co/api/v2/pokemon/91/","https://pokeapi.co/api/v2/pokemon/92/","https://pokeapi.co/api/v2/pokemon/93/","https://pokeapi.co/api/v2/pokemon/94/","https://pokeapi.co/api/v2/pokemon/95/","https://pokeapi.co/api/v2/pokemon/96/","https://pokeapi.co/api/v2/pokemon/97/","https://pokeapi.co/api/v2/pokemon/98/","https://pokeapi.co/api/v2/pokemon/99/","https://pokeapi.co/api/v2/pokemon/100/","https://pokeapi.co/api/v2/pokemon/101/","https://pokeapi.co/api/v2/pokemon/102/","https://pokeapi.co/api/v2/pokemon/103/","https://pokeapi.co/api/v2/pokemon/104/","https://pokeapi.co/api/v2/pokemon/105/","https://pokeapi.co/api/v2/pokemon/106/","https://pokeapi.co/api/v2/pokemon/107/","https://pokeapi.co/api/v2/pokemon/108/","https://pokeapi.co/api/v2/pokemon/109/","https://pokeapi.co/api/v2/pokemon/110/","https://pokeapi.co/api/v2/pokemon/111/","https://pokeapi.co/api/v2/pokemon/112/","https://pokeapi.co/api/v2/pokemon/113/","https://pokeapi.co/api/v2/pokemon/114/","https://pokeapi.co/api/v2/pokemon/115/","https://pokeapi.co/api/v2/pokemon/116/","https://pokeapi.co/api/v2/pokemon/117/","https://pokeapi.co/api/v2/pokemon/118/","https://pokeapi.co/api/v2/pokemon/119/","https://pokeapi.co/api/v2/pokemon/120/","https://pokeapi.co/api/v2/pokemon/121/","https://pokeapi.co/api/v2/pokemon/122/","https://pokeapi.co/api/v2/pokemon/123/","https://pokeapi.co/api/v2/pokemon/124/","https://pokeapi.co/api/v2/pokemon/125/","https://pokeapi.co/api/v2/pokemon/126/","https://pokeapi.co/api/v2/pokemon/127/","https://pokeapi.co/api/v2/pokemon/128/","https://pokeapi.co/api/v2/pokemon/129/","https://pokeapi.co/api/v2/pokemon/130/","https://pokeapi.co/api/v2/pokemon/131/","https://pokeapi.co/api/v2/pokemon/132/","https://pokeapi.co/api/v2/pokemon/133/","https://pokeapi.co/api/v2/pokemon/134/","https://pokeapi.co/api/v2/pokemon/135/","https://pokeapi.co/api/v2/pokemon/136/","https://pokeapi.co/api/v2/pokemon/137/","https://pokeapi.co/api/v2/pokemon/138/","https://pokeapi.co/api/v2/pokemon/139/","https://pokeapi.co/api/v2/pokemon/140/","https://pokeapi.co/api/v2/pokemon/141/","https://pokeapi.co/api/v2/pokemon/142/","https://pokeapi.co/api/v2/pokemon/143/","https://pokeapi.co/api/v2/pokemon/144/","https://pokeapi.co/api/v2/pokemon/145/","https://pokeapi.co/api/v2/pokemon/146/","https://pokeapi.co/api/v2/pokemon/147/","https://pokeapi.co/api/v2/pokemon/148/","https://pokeapi.co/api/v2/pokemon/149/","https://pokeapi.co/api/v2/pokemon/150/","https://pokeapi.co/api/v2/pokemon/151/","https://pokeapi.co/api/v2/pokemon/152/","https://pokeapi.co/api/v2/pokemon/153/","https://pokeapi.co/api/v2/pokemon/154/","https://pokeapi.co/api/v2/pokemon/155/","https://pokeapi.co/api/v2/pokemon/156/","https://pokeapi.co/api/v2/pokemon/157/","https://pokeapi.co/api/v2/pokemon/158/","https://pokeapi.co/api/v2/pokemon/159/","https://pokeapi.co/api/v2/pokemon/160/","https://pokeapi.co/api/v2/pokemon/161/","https://pokeapi.co/api/v2/pokemon/162/","https://pokeapi.co/api/v2/pokemon/163/","https://pokeapi.co/api/v2/pokemon/164/","https://pokeapi.co/api/v2/pokemon/165/","https://pokeapi.co/api/v2/pokemon/166/","https://pokeapi.co/api/v2/pokemon/167/","https://pokeapi.co/api/v2/pokemon/168/","https://pokeapi.co/api/v2/pokemon/169/","https://pokeapi.co/api/v2/pokemon/170/","https://pokeapi.co/api/v2/pokemon/171/","https://pokeapi.co/api/v2/pokemon/172/","https://pokeapi.co/api/v2/pokemon/173/","https://pokeapi.co/api/v2/pokemon/174/","https://pokeapi.co/api/v2/pokemon/175/","https://pokeapi.co/api/v2/pokemon/176/","https://pokeapi.co/api/v2/pokemon/177/","https://pokeapi.co/api/v2/pokemon/178/","https://pokeapi.co/api/v2/pokemon/179/","https://pokeapi.co/api/v2/pokemon/180/","https://pokeapi.co/api/v2/pokemon/181/","https://pokeapi.co/api/v2/pokemon/182/","https://pokeapi.co/api/v2/pokemon/183/","https://pokeapi.co/api/v2/pokemon/184/","https://pokeapi.co/api/v2/pokemon/185/","https://pokeapi.co/api/v2/pokemon/186/","https://pokeapi.co/api/v2/pokemon/187/","https://pokeapi.co/api/v2/pokemon/188/","https://pokeapi.co/api/v2/pokemon/189/","https://pokeapi.co/api/v2/pokemon/190/","https://pokeapi.co/api/v2/pokemon/191/","https://pokeapi.co/api/v2/pokemon/192/","https://pokeapi.co/api/v2/pokemon/193/","https://pokeapi.co/api/v2/pokemon/194/","https://pokeapi.co/api/v2/pokemon/195/","https://pokeapi.co/api/v2/pokemon/196/","https://pokeapi.co/api/v2/pokemon/197/","https://pokeapi.co/api/v2/pokemon/198/","https://pokeapi.co/api/v2/pokemon/199/","https://pokeapi.co/api/v2/pokemon/200/"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th>name<\/th>\n      <th>url<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script>
-<p>Hit the appropriate resource url to get more info about each pokemon
-## catch first pokemon <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Pok%C3%A9_Ball.svg"
+<p>So as to get more info about each pokemon we ll have to hit the appropriate resource url </p>
+<div id="first-pokemon" class="section level2">
+<h2>First pokemon <img src="https://upload.wikimedia.org/wikipedia/commons/2/23/Pok%C3%A9_Ball.svg" 
      width="20" 
-     height="25"/></p>
-<p>Custom function feels like throwing a pokeball
-<img src="c6.png" /></p>
+     height="25"/></h2>
+<p>I feel like throwing a pokeball with the function below :</p>
+<p><img src="c6.png" /></p>
 <pre><code>## List of 18
 ##  $ abilities               :&#39;data.frame&#39;:    2 obs. of  4 variables:
 ##  $ base_experience         : int 62
@@ -96,10 +97,15 @@ for each pokemon (first 200 records) with the corresponding resource (URL). So e
 <div id="htmlwidget-2" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-2">{"x":null,"evals":[],"jsHooks":[]}</script>
 </div>
+</div>
 <div id="section-1" class="section level1">
 <h1></h1>
-<p>You got your charmander, now use {purrr} from to catch em all 
-<img src="c7.png" /></p>
+<p>You got your charmander, now use {purrr}’s <code>map</code> to catch em all </p>
+<p><img src="c7.png" /></p>
+<p>Note that now we have a deeply nested list of lists 
+each consisting of every pokemons whole data from its resource 
+you can check the documentation <a href="https://pokeapi.co/docs/v2">here</a> or 
+<code>View(pokenets)</code> in RStudio to have a look at every level of the lists.</p>
 </div>
 <div id="purrr-has-got-powerrr" class="section level1">
 <h1>{purrr} has got powerrr</h1>
@@ -112,8 +118,8 @@ See full documentation at <a href="https://purrr.tidyverse.org/">https://purrr.t
 </div>
 <div id="section-2" class="section level1">
 <h1></h1>
-<p>Nice and tidy tibble as a good starting point to run a PCA or a regression..
-For the sake plotting here is a correlation plot of base stats 
+<p>Nice and tidy tibble as a good starting point to run a PCA or whatever analysis..</p>
+<p>For the sake plotting here is a correlation plot of base stats 
 ¯_( ͡❛ ͜ʖ ͡❛)_/¯<br />
 
 <img src="c9.png" />
